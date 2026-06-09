@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".all.trendszine.UrlActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="trendszine.com" />
+                <!-- 拦截类似 /20260608210223.html 的详情页链接 -->
+                <data android:pathPattern="/.*\\.html" />
+                <data android:pathPattern="/.*\\.html/.*" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

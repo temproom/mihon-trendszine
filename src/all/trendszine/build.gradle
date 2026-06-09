@@ -1,0 +1,8 @@
+ext {
+    extName = '風流雜誌 (Trendszine)'
+    extClass = '.Trendszine'
+    extVersionCode = 1
+    isNsfw = true
+}
+
+apply plugin: "kei.plugins.extension.legacy"
