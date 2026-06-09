@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class Trendszine : ParsedHttpSource() {
-    override val name = "風流雜誌 (Trendszine)"
+    override val name = "Trendszine"
     override val baseUrl = "https://trendszine.com"
     override val lang = "all"
     override val supportsLatest = true
