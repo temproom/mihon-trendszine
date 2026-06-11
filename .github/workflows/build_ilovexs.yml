@@ -9,8 +9,8 @@ on:
   # 修改其他扩展的代码不会触发这个任务。
   push:
     paths:
-      - 'src/all/Ilovexs/**'
-      - '.github/workflows/build_Ilovexs.yml' # 修改此yml文件也会触发
+      - 'src/all/ilovexs/**'
+      - '.github/workflows/build_ilovexs.yml' # 修改此yml文件也会触发
 
 jobs:
   build:
@@ -32,12 +32,12 @@ jobs:
 
       - name: Build Ilovexs APK (Specific Module Only)
         # 【核心优化】：明确指定只编译 ilovexs 模块，绝不编译其他扩展
-        run: ./gradlew :src:all:Ilovexs:assembleRelease -x spotlessCheck
+        run: ./gradlew :src:all:ilovexs:assembleRelease -x spotlessCheck
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Ilovexs-release-apk
+          name: ilovexs-release-apk
           # 明确指定输出路径
-          path: src/all/Ilovexs/build/outputs/apk/release/*.apk
+          path: src/all/ilovexs/build/outputs/apk/release/*.apk
           if-no-files-found: error
