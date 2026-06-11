@@ -26,8 +26,4 @@ class CategoryFilter : UriPartFilter(
 
 class TagFilter : Filter.Text("Tag") {
     fun toUriPart(): String = state.trim()
-        .lowercase()
-        .split(' ')
-        .filter { it.isNotEmpty() }
-        .joinToString("-")
 }
