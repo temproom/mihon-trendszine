@@ -6,4 +6,4 @@ ext {
 }
 
 // 应用仓库提供的统一扩展构建插件
-apply plugin: 'kei.plugins.extension'
+apply plugin: "kei.plugins.extension.legacy"
