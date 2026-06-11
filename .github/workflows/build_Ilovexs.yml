@@ -10,7 +10,7 @@ on:
   push:
     paths:
       - 'src/all/Ilovexs/**'
-      - '.github/workflows/build-Ilovexs.yml' # 修改此yml文件也会触发
+      - '.github/workflows/build_Ilovexs.yml' # 修改此yml文件也会触发
 
 jobs:
   build:
