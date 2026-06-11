@@ -32,7 +32,7 @@ jobs:
 
       - name: Build Ilovexs APK (Specific Module Only)
         # 【核心优化】：明确指定只编译 ilovexs 模块，绝不编译其他扩展
-        run: ./gradlew :src:all:Ilovexs:assembleRelease --no-daemon -x spotlessCheck
+        run: ./gradlew :src:all:Ilovexs:assembleRelease -x spotlessCheck
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
