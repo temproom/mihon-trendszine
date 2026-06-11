@@ -1,0 +1,43 @@
+name: Build buondua Extension
+
+on:
+  # 1. 允许手动点击触发（推荐，最可控）
+  workflow_dispatch:
+  
+  # 2. 如果非要代码 push 时自动触发，必须限制路径！
+  # 只有当 src/all/buondua 目录下的文件被修改时，才会触发编译。
+  # 修改其他扩展的代码不会触发这个任务。
+  push:
+    paths:
+      - 'src/all/buondua/**'
+      - '.github/workflows/build-buondua.yml' # 修改此yml文件也会触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 【核心优化】：使用 Gradle 官方 Action，它会自动配置强大的缓存机制！
+      # 这样第二次及以后的编译，不需要重新下载依赖，速度会提升 5-10 倍。
+      - name: Setup Gradle with Cache
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build buondua APK (Specific Module Only)
+        # 【核心优化】：明确指定只编译 buondua 模块，绝不编译其他扩展
+        run: ./gradlew :src:all:buondua:assembleRelease -x spotlessCheck
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: buondua-release-apk
+          # 明确指定输出路径
+          path: src/all/buondua/build/outputs/apk/release/*.apk
+          if-no-files-found: error
