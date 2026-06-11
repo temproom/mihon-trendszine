@@ -37,7 +37,7 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Ilovexs-Release-apk
+          name: Ilovexs-release-apk
           # 明确指定输出路径
-          path: src/all/Ilovexs/build/outputs/apk/Release/*.apk
+          path: src/all/Ilovexs/build/outputs/apk/release/*.apk
           if-no-files-found: error
