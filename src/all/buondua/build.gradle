@@ -1,12 +1,22 @@
 ext {
-    extName = 'Buon Dua'
-    extClass = '.BuonDua'
-    extVersionCode = 9
+    extName = 'Buondua'
+    extClass = '.Buondua'
+    extVersionCode = 1
     isNsfw = true
 }
 
-apply plugin: "kei.plugins.extension.legacy"
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
-dependencies {
-    implementation(project(":lib:randomua"))
+android {
+    compileSdkVersion 34
+    defaultConfig {
+        applicationId "eu.kanade.tachiyomi.extension.all.buondua"
+        minSdkVersion 21
+        targetSdkVersion 34
+        versionCode extVersionCode
+        versionName "1.0"
+        multiDexEnabled true
+    }
+    // ... 其他标准配置
 }
