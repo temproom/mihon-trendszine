@@ -190,7 +190,7 @@ class Ilovexs : HttpSource() {
 
     override fun getChapterUrl(chapter: SChapter): String = "$baseUrl${chapter.url}"
 
-    // ========================= Pages =========================
+        // ========================= Pages =========================
     override fun pageListParse(response: Response): List<Page> {
         val pages = response.asJsoup()
             .select("section.image-gallery figure.gallery-item-image a.image-link")
@@ -198,7 +198,8 @@ class Ilovexs : HttpSource() {
                 // 优先使用 href (大图链接), 回退到 data-src 或 src
                 val imageUrl = element.absUrl("href")
                     .ifBlank { element.absUrl("data-src") }
-                    .ifBlank { element.selectFirst("img")?.absUrl("src") }
+                    // ✅ 修复点：添加 .orEmpty() 确保返回的是非空 String
+                    .ifBlank { element.selectFirst("img")?.absUrl("src").orEmpty() } 
                 
                 if (imageUrl.isBlank()) {
                     null
