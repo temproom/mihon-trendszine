@@ -1,15 +1,15 @@
-name: Build ilovexs Extension
+name: Build Ilovexs Extension
 
 on:
   # 1. 允许手动点击触发（推荐，最可控）
   workflow_dispatch:
   
   # 2. 如果非要代码 push 时自动触发，必须限制路径！
-  # 只有当 src/all/ilovexs 目录下的文件被修改时，才会触发编译。
+  # 只有当 src/all/Ilovexs 目录下的文件被修改时，才会触发编译。
   # 修改其他扩展的代码不会触发这个任务。
   push:
     paths:
-      - 'src/all/ilovexs/**'
+      - 'src/all/Ilovexs/**'
       - '.github/workflows/build-ilovexs.yml' # 修改此yml文件也会触发
 
 jobs:
@@ -30,14 +30,14 @@ jobs:
       - name: Setup Gradle with Cache
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build ilovexs APK (Specific Module Only)
+      - name: Build Ilovexs APK (Specific Module Only)
         # 【核心优化】：明确指定只编译 ilovexs 模块，绝不编译其他扩展
-        run: ./gradlew :src:all:ilovexs:assembleRelease -x spotlessCheck
+        run: ./gradlew :src:all:Ilovexs:assembleDebug --no-daemon -x spotlessCheck
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ilovexs-release-apk
+          name: Ilovexs-debug-apk
           # 明确指定输出路径
-          path: src/all/ilovexs/build/outputs/apk/release/*.apk
+          path: src/all/Ilovexs/build/outputs/apk/debug/*.apk
           if-no-files-found: error
