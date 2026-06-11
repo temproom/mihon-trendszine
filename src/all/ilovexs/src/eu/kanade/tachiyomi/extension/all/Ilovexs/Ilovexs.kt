@@ -58,53 +58,63 @@ class Ilovexs : HttpSource() {
 
     // ========================= Search =========================
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
-        // 深度链接处理
-        val deepLinkUrl = query.toHttpUrlOrNull()
-        if (deepLinkUrl != null && deepLinkUrl.host == baseHttpUrl.host) {
-            val pathSegments = deepLinkUrl.pathSegments.filter { it.isNotBlank() }
-            if (isMangaOrChapterPath(pathSegments)) {
-                return GET(deepLinkUrl, headers)
-            }
+    // 1. 深度链接处理
+    val deepLinkUrl = query.toHttpUrlOrNull()
+    if (deepLinkUrl != null && deepLinkUrl.host == baseHttpUrl.host) {
+        val pathSegments = deepLinkUrl.pathSegments.filter { it.isNotBlank() }
+        if (isMangaOrChapterPath(pathSegments)) {
+            return GET(deepLinkUrl, headers)
         }
-
-        // 关键词搜索: /search/?key=xxx&page=x
-        if (query.isNotBlank()) {
-            val url = baseHttpUrl.newBuilder()
-                .addPathSegment("search")
-                .addQueryParameter("key", query.trim())
-                .addQueryParameter("page", page.toString())
-                .build()
-            return GET(url, headers)
-        }
-
-        // 过滤器搜索
-        val filterList = if (filters.isEmpty()) getFilterList() else filters
-        val categoryFilter = filterList.firstInstance<CategoryFilter>()
-        val tagFilter = filterList.firstInstance<TagFilter>()
-
-        categoryFilter.selected?.let { category ->
-            val url = baseHttpUrl.newBuilder()
-                .addPathSegment("category")
-                .addPathSegment(category)
-                .addPathSegment("page")
-                .addPathSegment(page.toString())
-                .build()
-            return GET(url, headers)
-        }
-
-        val tag = tagFilter.toUriPart()
-        if (tag.isNotEmpty()) {
-            val url = baseHttpUrl.newBuilder()
-                .addPathSegment("tag")
-                .addPathSegment(tag)
-                .addPathSegment("page")
-                .addPathSegment(page.toString())
-                .build()
-            return GET(url, headers)
-        }
-
-        return popularMangaRequest(page)
     }
+
+    val filterList = if (filters.isEmpty()) getFilterList() else filters
+    val categoryFilter = filterList.firstInstance<CategoryFilter>()
+    val tagFilter = filterList.firstInstance<TagFilter>()
+
+    // 2. 分类筛选 (优先级最高)
+    val category = categoryFilter.selected
+    if (!category.isNullOrEmpty()) {
+        val url = baseHttpUrl.newBuilder()
+            .addPathSegment("category")
+            .addPathSegment(category)
+        if (page > 1) {
+            url.addPathSegment("page")
+            url.addPathSegment(page.toString())
+        }
+        url.addPathSegment("") // ⚠️ 关键：确保 URL 以 / 结尾，如 /category/korea/ 或 /category/korea/page/2/
+        return GET(url.build(), headers)
+    }
+
+    // 3. 标签筛选
+    val tag = tagFilter.toUriPart()
+    if (tag.isNotEmpty()) {
+        val url = baseHttpUrl.newBuilder()
+            .addPathSegment("tag")
+            .addPathSegment(tag)
+        if (page > 1) {
+            url.addPathSegment("page")
+            url.addPathSegment(page.toString())
+        }
+        url.addPathSegment("") // ⚠️ 确保 URL 以 / 结尾
+        return GET(url.build(), headers)
+    }
+
+    // 4. 关键词搜索
+    if (query.isNotBlank()) {
+        val url = baseHttpUrl.newBuilder()
+            .addPathSegment("search")
+        if (page > 1) {
+            url.addPathSegment("page")
+            url.addPathSegment(page.toString())
+        }
+        url.addPathSegment("") // ⚠️ 确保 URL 以 / 结尾，生成 /search/page/2/
+        url.addQueryParameter("key", query.trim())
+        return GET(url.build(), headers)
+    }
+
+    // 5. 兜底：返回最新/热门列表
+    return popularMangaRequest(page)
+}
 
     override fun searchMangaParse(response: Response): MangasPage {
         val document = response.asJsoup()
@@ -229,12 +239,12 @@ class Ilovexs : HttpSource() {
     override fun imageUrlParse(response: Response): String = throw UnsupportedOperationException()
 
     // ========================= Helpers =========================
-    private fun parseMangasPage(document: Document): MangasPage {
-        val mangas = document.select("article.album-card").map(::mangaFromElement)
-        // 检测是否有下一页
-        val hasNextPage = document.selectFirst("a.pagination-link:not(.is-disabled)[href*='/page/']") != null
-        return MangasPage(mangas, hasNextPage)
-    }
+   private fun parseMangasPage(document: Document): MangasPage {
+    val mangas = document.select("article.album-card").map(::mangaFromElement)
+    // 适配主页和搜索页的 "Next page" 按钮
+    val hasNextPage = document.selectFirst("a.pagination-link:contains(Next page)") != null
+    return MangasPage(mangas, hasNextPage)
+}
 
     private fun mangaFromElement(element: Element): SManga = SManga.create().apply {
         val link = element.selectFirst("a.album-card-link")?.absUrl("href")
